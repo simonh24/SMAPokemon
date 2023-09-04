@@ -10,7 +10,7 @@ const theme = createTheme()
 
 async function prepare() {
   if (import.meta.env.DEV) {
-    return worker.start()
+    // return worker.start()
   }
 }
 

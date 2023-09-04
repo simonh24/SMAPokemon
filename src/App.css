@@ -1,5 +1,6 @@
 .App {
   /* text-align: center; */
+  background-color: gray;
 }
 
 .App-header {
@@ -11,4 +12,8 @@
   justify-content: center;
   /* font-size: calc(10px + 2vmin); */
   /* color: white; */
+}
+
+html {
+  background: gray;
 }

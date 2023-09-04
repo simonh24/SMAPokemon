@@ -1,25 +1,53 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
 import { PokemonInfoCard } from '../components/PokemonInfoCard'
-
-interface Pokemon {
-  name: string
-  url: string
-}
+import { Pokemon } from '../utils/Interfaces'
+import { CircularProgress } from '@mui/material'
 
 export function Pokedex() {
   const [pokemon, setPokemon] = useState<Array<Pokemon>>([])
+  const [offset, setOffset] = useState(0)
+
+  const getPokemon = useCallback(async () => {
+    const response = await fetch(
+      `https://pokeapi.co/api/v2/pokemon/?limit=21&offset=${offset}`
+    )
+    const data = await response.json()
+    setPokemon((prevPokemon) => prevPokemon.concat(data.results))
+  }, [offset])
 
   useEffect(() => {
-    ;(async function getPokemon() {
-      const response = await fetch('https://pokeapi.co/api/v2/pokemon')
-      const data = await response.json()
-      setPokemon(data.results)
-    })()
+    getPokemon()
+  }, [getPokemon])
+
+  const handleLoad = () => {
+    const position = window.innerHeight + document.documentElement.scrollTop
+    const totalHeight = document.documentElement.offsetHeight
+    if (position === totalHeight) {
+      setOffset((prevOffset) => prevOffset + 21)
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleLoad)
+    return () => {
+      window.removeEventListener('scroll', handleLoad)
+    }
   }, [])
+
   return (
-    <Container style={{ paddingBottom: 24, paddingTop: 24 }} maxWidth={'lg'}>
+    <Container
+      sx={{
+        paddingBottom: 24,
+        paddingTop: 6,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+      maxWidth={'lg'}
+    >
       <Grid
         container
         spacing={{ xs: 2, md: 3 }}
@@ -32,6 +60,7 @@ export function Pokedex() {
           </Grid>
         ))}
       </Grid>
+      <CircularProgress color="info" />
     </Container>
   )
 }
