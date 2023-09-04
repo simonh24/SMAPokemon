@@ -1,58 +1,91 @@
-import { useEffect, useState } from 'react'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
-import Grid from '@mui/material/Grid'
-import Container from '@mui/material/Container'
+import { useState } from 'react'
+import { TextField, Typography, Grid, Container, Button } from '@mui/material'
 import { PokemonInfoCard } from '../components/PokemonInfoCard'
+import { PokemonInfo } from '../utils/Interfaces'
 
 export function PokemonSearch() {
   const [val, setVal] = useState('')
-  const [pokemonFound, setPokemonFound] = useState(false)
-  const [pokemon, setPokemon] = useState()
+  const [pokemon, setPokemon] = useState<PokemonInfo | null>(null)
+
   const handleChange = (e: $FixMe) => {
-    setVal(e.target.value)
+    setVal(e.target.value.toLowerCase())
   }
 
-  const url = `https://pokeapi.co/api/v2/pokemon/${val}/`
-
-  useEffect(() => {
-    ;(async () => {
-      try {
-        const response = await fetch(
-          `https://pokeapi.co/api/v2/pokemon/${val}/`
-        )
-        const data = await response.json()
-        setPokemon(data)
-        setPokemonFound(true)
-      } catch (e) {
-        console.error(e)
-      }
-    })()
-  }, [val])
+  const handleSearch = async () => {
+    if (val.trim() === '') {
+      return
+    }
+    setPokemon({
+      name: val,
+      url: `https://pokeapi.co/api/v2/pokemon/${val}`,
+    })
+  }
 
   return (
     <Container
-      style={{ paddingBottom: 24, paddingTop: 24, textAlign: 'center' }}
+      style={{
+        paddingBottom: 24,
+        paddingTop: 24,
+        textAlign: 'center',
+        background: 'white',
+        marginTop: '20px',
+        borderRadius: '5px',
+      }}
       maxWidth={'lg'}
     >
-      <Grid container spacing={{ xs: 4 }} columns={{ xs: 4 }}>
+      <Grid
+        container
+        spacing={{ xs: 4 }}
+        columns={{ xs: 4 }}
+        display={'flex'}
+        justifyContent={'center'}
+        alignItems={'center'}
+      >
         <Grid item xs={4} sm={4} md={4}>
           <Typography variant="h2">Find your Pokemon</Typography>
         </Grid>
-
-        {pokemonFound ? (
-          <Grid item xs={4} sm={4} md={4}>
-            <PokemonInfoCard pokemon={{ name: val, url }} />
-          </Grid>
-        ) : null}
-        <Grid item xs={4} sm={4} md={4}>
+        <Grid
+          item
+          xs={4}
+          sm={4}
+          md={4}
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
           <TextField
             variant="outlined"
             color="secondary"
             label="search pokemon"
             onChange={handleChange}
+            data-testid="search-input"
           />
+          <Button
+            variant="contained"
+            onClick={handleSearch}
+            style={{ marginLeft: '10px' }}
+            data-testid="search-button"
+          >
+            Search
+          </Button>
         </Grid>
+        {pokemon ? (
+          <Grid
+            item
+            xs={4}
+            sm={4}
+            md={4}
+            display={'flex'}
+            justifyContent={'center'}
+            alignItems={'center'}
+          >
+            <PokemonInfoCard
+              pokemon={{ name: pokemon.name, url: pokemon.url }}
+            />
+          </Grid>
+        ) : null}
       </Grid>
     </Container>
   )
